@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Assessment Day · Softball Scorer</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --green-50: #E1F5EE;
+    --green-100: #9FE1CB;
+    --green-400: #1D9E75;
+    --green-600: #0F6E56;
+    --green-800: #085041;
+    --amber: #EF9F27;
+    --coral: #F0997B;
+    --red: #E24B4A;
+    --bg: #F5F3EE;
+    --surface: #FFFFFF;
+    --surface2: #F0EDE6;
+    --border: rgba(0,0,0,0.08);
+    --border-strong: rgba(0,0,0,0.14);
+    --text: #1A1A18;
+    --text-muted: #6B6860;
+    --text-faint: #A09D96;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; background: var(--bg); font-family: 'DM Sans', sans-serif; color: var(--text); }
+
+  .shell { max-width: 480px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
+
+  /* Header */
+  .header { padding: 1.25rem 1.25rem 0; display: flex; align-items: center; gap: 10px; }
+  .logo { width: 36px; height: 36px; background: var(--green-400); border-radius: 10px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .logo svg { width: 20px; height: 20px; }
+  .header-text h1 { font-size: 15px; font-weight: 600; letter-spacing: -0.02em; }
+  .header-text p { font-size: 12px; color: var(--text-muted); margin-top: 1px; }
+
+  /* Connection badge */
+  .conn-badge { margin-left: auto; display: flex; align-items: center; gap: 5px; font-size: 11px; font-family: 'DM Mono', monospace; color: var(--text-muted); background: var(--surface2); padding: 4px 10px; border-radius: 20px; border: 0.5px solid var(--border); }
+  .conn-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--text-faint); }
+  .conn-dot.live { background: var(--green-400); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+  /* Tabs */
+  .tabs { display: flex; gap: 4px; padding: 1rem 1.25rem 0; }
+  .tab { flex: 1; padding: 8px 4px; font-size: 13px; font-weight: 500; border: 0.5px solid var(--border); border-radius: var(--radius-sm); background: var(--surface); color: var(--text-muted); cursor: pointer; text-align: center; transition: all 0.15s; }
+  .tab.active { background: var(--green-400); border-color: var(--green-400); color: #fff; }
+
+  /* Content */
+  .content { flex: 1; padding: 1rem 1.25rem 2rem; display: flex; flex-direction: column; gap: 0.75rem; }
+
+  /* Cards */
+  .card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 1.1rem 1.25rem; }
+  .field-label { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 10px; }
+
+  /* Player input */
+  .player-wrap { position: relative; }
+  .player-input { width: 100%; padding: 14px 16px; font-size: 28px; font-weight: 600; font-family: 'DM Mono', monospace; letter-spacing: 0.1em; border: 1.5px solid var(--border); border-radius: var(--radius-sm); background: var(--bg); color: var(--text); text-align: center; transition: border-color 0.15s; -webkit-appearance: none; appearance: none; }
+  .player-input:focus { outline: none; border-color: var(--green-400); background: var(--surface); }
+  .player-input::placeholder { color: var(--text-faint); font-size: 22px; letter-spacing: 0.04em; }
+
+  /* Station buttons */
+  .station-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; }
+  .stn-btn { padding: 11px 8px; border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 13px; font-weight: 500; cursor: pointer; background: var(--bg); color: var(--text-muted); transition: all 0.12s; text-align: center; }
+  .stn-btn:active { transform: scale(0.97); }
+  .stn-btn.sel { background: var(--green-50); border-color: var(--green-400); color: var(--green-600); font-weight: 600; }
+
+  /* Score buttons */
+  .score-row { display: flex; gap: 8px; justify-content: center; }
+  .score-btn { width: 52px; height: 52px; border-radius: 50%; border: 1.5px solid var(--border); font-size: 20px; font-weight: 600; font-family: 'DM Mono', monospace; cursor: pointer; background: var(--bg); color: var(--text-muted); transition: all 0.12s; flex-shrink: 0; }
+  .score-btn:active { transform: scale(0.93); }
+  .score-btn.sel-1 { background: #F0997B; border-color: #D85A30; color: #fff; transform: scale(1.12); }
+  .score-btn.sel-2 { background: #EF9F27; border-color: #BA7517; color: #fff; transform: scale(1.12); }
+  .score-btn.sel-3 { background: #97C459; border-color: #3B6D11; color: #fff; transform: scale(1.12); }
+  .score-btn.sel-4 { background: #5DCAA5; border-color: #1D9E75; color: #fff; transform: scale(1.12); }
+  .score-btn.sel-5 { background: #1D9E75; border-color: #0F6E56; color: #fff; transform: scale(1.12); }
+  .score-labels { display: flex; justify-content: space-between; margin-top: 8px; padding: 0 2px; }
+  .score-labels span { font-size: 10px; color: var(--text-faint); }
+
+  /* Submit */
+  .submit-btn { width: 100%; padding: 15px; border-radius: var(--radius); border: none; font-size: 15px; font-weight: 600; font-family: 'DM Sans', sans-serif; cursor: pointer; background: var(--green-400); color: #fff; letter-spacing: -0.01em; transition: all 0.15s; }
+  .submit-btn:hover { background: var(--green-600); }
+  .submit-btn:active { transform: scale(0.98); }
+  .submit-btn:disabled { background: var(--surface2); color: var(--text-faint); cursor: not-allowed; transform: none; }
+
+  /* Config notice */
+  .config-notice { background: #FFF8E7; border: 1px solid #FAC775; border-radius: var(--radius-sm); padding: 10px 14px; font-size: 12px; color: #633806; line-height: 1.5; }
+  .config-notice strong { display: block; margin-bottom: 3px; font-weight: 600; }
+
+  /* Toast */
+  .toast { position: fixed; bottom: 2rem; left: 50%; transform: translateX(-50%) translateY(80px); background: var(--green-800); color: #fff; padding: 10px 20px; border-radius: 20px; font-size: 13px; font-weight: 500; font-family: 'DM Sans', sans-serif; transition: transform 0.3s cubic-bezier(0.34,1.56,0.64,1); z-index: 999; white-space: nowrap; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast.error { background: var(--red); }
+
+  /* Summary tab */
+  .stat-row { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .stat-box { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius); padding: 14px 10px; text-align: center; }
+  .stat-num { font-size: 26px; font-weight: 600; font-family: 'DM Mono', monospace; color: var(--text); }
+  .stat-lbl { font-size: 10px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text-muted); margin-top: 4px; }
+
+  .section-label { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; margin-top: 4px; }
+
+  table { width: 100%; border-collapse: collapse; }
+  th { font-size: 10px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); text-align: left; padding: 6px 10px; border-bottom: 0.5px solid var(--border); }
+  td { padding: 10px 10px; font-size: 13px; border-bottom: 0.5px solid var(--border); color: var(--text); }
+  tr:last-child td { border-bottom: none; }
+  .avg-pill { display: inline-block; padding: 2px 9px; border-radius: 20px; font-size: 12px; font-weight: 600; font-family: 'DM Mono', monospace; }
+
+  /* Players tab */
+  .player-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+  .player-card { background: var(--surface); border: 0.5px solid var(--border); border-radius: var(--radius-sm); padding: 12px 10px; }
+  .p-num { font-size: 18px; font-weight: 600; font-family: 'DM Mono', monospace; color: var(--text); }
+  .p-info { font-size: 11px; color: var(--text-muted); margin-top: 3px; }
+  .p-total { font-size: 13px; font-weight: 600; color: var(--green-400); margin-top: 4px; }
+
+  .empty { text-align: center; padding: 3rem 1rem; color: var(--text-faint); font-size: 14px; }
+
+  .export-btn { width: 100%; padding: 12px; border-radius: var(--radius-sm); border: 1px solid var(--border-strong); font-size: 13px; font-weight: 500; font-family: 'DM Sans', sans-serif; cursor: pointer; background: var(--surface); color: var(--text); }
+  .export-btn:active { background: var(--surface2); }
+
+  /* Anim */
+  @keyframes fadeIn { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:translateY(0)} }
+  .content { animation: fadeIn 0.2s ease; }
+</style>
+</head>
+<body>
+<div class="shell">
+
+  <div class="header">
+    <div class="logo">
+      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="10" cy="10" r="8" stroke="white" stroke-width="1.5"/>
+        <circle cx="10" cy="10" r="3.5" stroke="white" stroke-width="1.5"/>
+        <line x1="10" y1="2" x2="10" y2="18" stroke="white" stroke-width="1"/>
+        <line x1="2" y1="10" x2="18" y2="10" stroke="white" stroke-width="1"/>
+      </svg>
+    </div>
+    <div class="header-text">
+      <h1>Assessment Day</h1>
+      <p>Softball League Scorer</p>
+    </div>
+    <div class="conn-badge">
+      <div class="conn-dot" id="connDot"></div>
+      <span id="connText">offline</span>
+    </div>
+  </div>
+
+  <div class="tabs" style="padding-top:1rem;">
+    <div class="tab active" id="tab-score" onclick="switchTab('score')">Score entry</div>
+    <div class="tab" id="tab-summary" onclick="switchTab('summary')">Summary</div>
+    <div class="tab" id="tab-players" onclick="switchTab('players')">Players</div>
+  </div>
+
+  <!-- SCORE ENTRY PANE -->
+  <div class="content" id="pane-score">
+
+    <div id="configNotice" class="config-notice" style="display:none;">
+      <strong>⚠ Setup required</strong>
+      Open this file in a text editor and paste your Google Apps Script URL into the <code>SHEET_URL</code> variable near the top. See the setup guide.
+    </div>
+
+    <div class="card">
+      <div class="field-label">Player number</div>
+      <input class="player-input" type="number" id="playerNum" placeholder="000" min="1" max="999" inputmode="numeric" pattern="[0-9]*" oninput="validate()" />
+    </div>
+
+    <div class="card">
+      <div class="field-label">Station</div>
+      <div class="station-grid" id="stationGrid"></div>
+    </div>
+
+    <div class="card">
+      <div class="field-label">Score</div>
+      <div class="score-row" id="scoreRow"></div>
+      <div class="score-labels">
+        <span>Needs work</span>
+        <span>Outstanding</span>
+      </div>
+    </div>
+
+    <button class="submit-btn" id="submitBtn" disabled onclick="submitScore()">Submit score</button>
+  </div>
+
+  <!-- SUMMARY PANE -->
+  <div class="content" id="pane-summary" style="display:none;">
+    <div class="stat-row">
+      <div class="stat-box"><div class="stat-num" id="s-total">0</div><div class="stat-lbl">Scores</div></div>
+      <div class="stat-box"><div class="stat-num" id="s-players">0</div><div class="stat-lbl">Players</div></div>
+      <div class="stat-box"><div class="stat-num" id="s-avg">—</div><div class="stat-lbl">Avg</div></div>
+    </div>
+    <div class="section-label">By station</div>
+    <div class="card" style="padding:0;">
+      <table><thead><tr><th>Station</th><th>Entries</th><th>Avg score</th></tr></thead>
+      <tbody id="stationTbody"></tbody></table>
+    </div>
+    <button class="export-btn" onclick="exportCSV()">Export CSV →</button>
+  </div>
+
+  <!-- PLAYERS PANE -->
+  <div class="content" id="pane-players" style="display:none;">
+    <div class="section-label">All players</div>
+    <div id="playerGrid" class="player-grid"></div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─────────────────────────────────────────────
+// CONFIGURATION — paste your Apps Script URL here
+// ─────────────────────────────────────────────
+const SHEET_URL = 'https://script.google.com/macros/s/AKfycbw7eLqeYaWSfEaYJgLk0POQCl4a4dRz27yvDfsnRH7FgQXu4UvnMjJD0Wc5FVYjUgIWTw/exec';
+// ─────────────────────────────────────────────
+
+const STATIONS = ['Running','Throwing','Infield','Outfield','Hitting','Pitching','Catching'];
+const AVG_COLORS = ['','#F0997B','#EF9F27','#97C459','#5DCAA5','#1D9E75'];
+const AVG_TEXT   = ['','#7A3010','#633806','#27500A','#085041','#085041'];
+
+let selStation = null, selScore = null;
+const log = [];
+
+// ── Init ──
+function init() {
+  if (SHEET_URL === 'YOUR_APPS_SCRIPT_URL_HERE') {
+    document.getElementById('configNotice').style.display = 'block';
+  } else {
+    document.getElementById('connDot').classList.add('live');
+    document.getElementById('connText').textContent = 'live';
+  }
+
+  const sg = document.getElementById('stationGrid');
+  STATIONS.forEach(s => {
+    const b = document.createElement('button');
+    b.className = 'stn-btn'; b.textContent = s;
+    b.onclick = () => {
+      selStation = s;
+      document.querySelectorAll('.stn-btn').forEach(x => x.classList.remove('sel'));
+      b.classList.add('sel');
+      validate();
+    };
+    sg.appendChild(b);
+  });
+
+  const sr = document.getElementById('scoreRow');
+  [1,2,3,4,5].forEach(n => {
+    const b = document.createElement('button');
+    b.className = 'score-btn'; b.textContent = n;
+    b.onclick = () => {
+      selScore = n;
+      document.querySelectorAll('.score-btn').forEach(x => x.className = 'score-btn');
+      b.className = `score-btn sel-${n}`;
+      validate();
+    };
+    sr.appendChild(b);
+  });
+}
+
+function validate() {
+  const p = document.getElementById('playerNum').value;
+  document.getElementById('submitBtn').disabled = !(p && selStation !== null && selScore !== null);
+}
+
+// ── Submit ──
+async function submitScore() {
+  const playerNum = parseInt(document.getElementById('playerNum').value);
+  const entry = {
+    timestamp: new Date().toISOString(),
+    player: playerNum,
+    station: selStation,
+    score: selScore
+  };
+
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+
+  // Save locally always
+  log.push(entry);
+
+  // Send to Google Sheet if configured
+  if (SHEET_URL !== 'YOUR_APPS_SCRIPT_URL_HERE') {
+    try {
+      await fetch(SHEET_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(entry)
+      });
+      showToast(`✓ Player #${playerNum} · ${selStation} · ${selScore}/5`);
+    } catch(e) {
+      showToast('Saved locally — network error', true);
+    }
+  } else {
+    showToast(`Saved locally · #${playerNum} · ${selStation} · ${selScore}/5`);
+  }
+
+  // Reset
+  document.getElementById('playerNum').value = '';
+  selStation = null; selScore = null;
+  document.querySelectorAll('.stn-btn').forEach(x => x.classList.remove('sel'));
+  document.querySelectorAll('.score-btn').forEach(x => x.className = 'score-btn');
+  btn.textContent = 'Submit score';
+  validate();
+}
+
+// ── Tabs ──
+function switchTab(tab) {
+  ['score','summary','players'].forEach(t => {
+    document.getElementById('tab-'+t).classList.toggle('active', t===tab);
+    document.getElementById('pane-'+t).style.display = t===tab ? 'flex' : 'none';
+  });
+  if (tab === 'summary') renderSummary();
+  if (tab === 'players') renderPlayers();
+}
+
+// ── Summary ──
+function renderSummary() {
+  document.getElementById('s-total').textContent = log.length;
+  const players = new Set(log.map(e => e.player)).size;
+  document.getElementById('s-players').textContent = players;
+  const avg = log.length ? (log.reduce((a,e)=>a+e.score,0)/log.length).toFixed(1) : '—';
+  document.getElementById('s-avg').textContent = avg;
+
+  const tbody = document.getElementById('stationTbody');
+  tbody.innerHTML = '';
+  STATIONS.forEach(s => {
+    const entries = log.filter(e => e.station === s);
+    if (!entries.length) return;
+    const a = (entries.reduce((x,e)=>x+e.score,0)/entries.length);
+    const aRound = Math.round(a);
+    const aStr = a.toFixed(1);
+    const tr = document.createElement('tr');
+    tr.innerHTML = `<td>${s}</td><td style="color:var(--text-muted)">${entries.length}</td>
+      <td><span class="avg-pill" style="background:${AVG_COLORS[aRound]};color:${AVG_TEXT[aRound]}">${aStr}</span></td>`;
+    tbody.appendChild(tr);
+  });
+  if (!tbody.children.length) {
+    tbody.innerHTML = '<tr><td colspan="3" class="empty">No scores yet</td></tr>';
+  }
+}
+
+// ── Players ──
+function renderPlayers() {
+  const grid = document.getElementById('playerGrid');
+  grid.innerHTML = '';
+  const map = {};
+  log.forEach(e => {
+    if (!map[e.player]) map[e.player] = [];
+    map[e.player].push(e);
+  });
+  const sorted = Object.keys(map).sort((a,b) => parseInt(a)-parseInt(b));
+  if (!sorted.length) {
+    grid.innerHTML = '<div class="empty" style="grid-column:1/-1">No scores yet</div>';
+    return;
+  }
+  sorted.forEach(p => {
+    const entries = map[p];
+    const total = entries.reduce((a,e)=>a+e.score,0);
+    const avg = (total/entries.length).toFixed(1);
+    const div = document.createElement('div');
+    div.className = 'player-card';
+    div.innerHTML = `<div class="p-num">#${p}</div>
+      <div class="p-info">${entries.length} station${entries.length!==1?'s':''}</div>
+      <div class="p-total">${avg} avg</div>`;
+    grid.appendChild(div);
+  });
+}
+
+// ── Export ──
+function exportCSV() {
+  if (!log.length) { showToast('No data to export', true); return; }
+  const rows = ['Timestamp,Player,Station,Score',
+    ...log.map(e => `${e.timestamp},${e.player},${e.station},${e.score}`)
+  ].join('\n');
+  const blob = new Blob([rows], { type:'text/csv' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `assessment_scores_${new Date().toISOString().slice(0,10)}.csv`;
+  a.click();
+}
+
+// ── Toast ──
+function showToast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast' + (isError ? ' error' : '');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+init();
+</script>
+</body>
+</html>
